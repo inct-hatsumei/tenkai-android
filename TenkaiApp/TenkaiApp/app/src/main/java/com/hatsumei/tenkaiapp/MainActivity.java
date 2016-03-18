@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,11 +60,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private TextView textView6;
 	private TextView textView7;
 	private TextView textView8;
-	private ToggleButton toggleButton;
 	private ToggleButton toggleButton1;
-
-
-	private Activity thisActivity;
 
 
 
@@ -90,7 +87,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	float mLaptime = 0.0f;
 	MyTimerTask timerTask = null;
 	Timer mTimer = null;
-	Handler mHandler = new Handler();
 
 	MyTimerTask2 timerTask2 = null;
 	Timer mTimer2 = null;
@@ -105,6 +101,20 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	Calendar calendar;
 
 	private boolean running;
+
+	private BluetoothAdapter mBluetoothAdapter = null;
+
+	private static final String TAG = "MainActivity";
+	private static final int REQUEST_ENABLE_BT = 1;
+	private static final int REQUEST_CONNECT_DEVICE = 2;
+
+	private BluetoothChatService mChatService = null;
+
+	private StringBuffer mOutStringBuffer;
+	private EditText mOutEditText;
+	private ToggleButton toggleButton;
+
+	String address;
 
 
 	@Override
@@ -132,16 +142,26 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		myRecorder = new MediaRecorder();
 
 
+
+
 		toggleButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+
 				if (toggleButton.isChecked()) {
 					running = true;
-					Btsend mbtsend = new Btsend(cpu, memo ,String.valueOf(temp), batt,
-							lat, alt, hei, gabX, gabY, gabZ, address);
-					mbtsend.start();
+					if(running){
+						timerTask = new MyTimerTask();
+						mTimer = new Timer(true);
+						mTimer.scheduleAtFixedRate(timerTask, 0, 500);
+					}
+
+
 				} else if (toggleButton.isChecked() == false) {
 					running = false;
+					mTimer.cancel();
+					mTimer=null;
+
 				}
 			}
 		});
@@ -185,16 +205,186 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			}
 
 		});
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
+
+		if (!mBluetoothAdapter.isEnabled()) {
+			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+// Otherwise, setup the chat session
+		} else {
+			//if (mChatService == null)
+			selectDevice();
+		}
+
 
 		timerTask2 = new MyTimerTask2();
 		mTimer2 = new Timer(true);
 		mTimer2.scheduleAtFixedRate(timerTask2, 0, 1000);
 
-		thisActivity = this;
+	}
 
-		btCreate();
+	@Override
+	public void onStart() {
+		super.onStart();
 
 	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mChatService != null) {
+			mChatService.stop();
+		}
+	}
+
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+			case REQUEST_ENABLE_BT:
+				// When the request to enable Bluetooth returns
+				if (resultCode == Activity.RESULT_OK) {
+					// Bluetooth is now enabled, so set up a chat session
+					selectDevice();
+				} else {
+					// User did not enable Bluetooth or an error occured
+					Log.d(TAG, "BT not enabled");
+					Toast.makeText(this, "BT is OFF", Toast.LENGTH_SHORT).show();
+					finish();
+				}
+				break;
+			case REQUEST_CONNECT_DEVICE:
+				if (resultCode == Activity.RESULT_OK) {
+					// Get the device MAC address
+					address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+					BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+					boolean secure = true;
+					mChatService.connect(device, secure);
+					//startBTCommunicator(address);
+				} else {
+					//showToastLong("右上のメニューから次の動作を選択してください");
+
+				}
+				break;
+
+		}
+	}
+
+	void selectDevice() {
+		mChatService = new BluetoothChatService(mHandler);
+		Intent intent = new Intent(this, DeviceListActivity.class);
+		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
+	}
+
+	private void sendMessage(String message) {
+
+		String sendMsg = "";
+		byte[] sendByte;
+
+		calendar = Calendar.getInstance();
+		try {
+			sendMsg = calendar.get(Calendar.YEAR) + "," + calendar.get(Calendar.MONTH) + calendar.get(Calendar.DATE) + calendar.get(Calendar.HOUR_OF_DAY)
+					+ calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) + ","
+					+ cpu + "," + memo + "," + temp + "," + batt + ","
+					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ + "\n";
+			//scount = " " + String.valueOf(icount) + ", " + String.valueOf(lat) + ", " + String.valueOf(alt) + ", "+ String.valueOf(hei);
+			sendByte = sendMsg.getBytes();
+			//bcount = scount.getBytes();
+			//textview.setText(String.valueOf(scount) + "\n" + textview.getText());
+			//mOutput.write(sendByte);
+			mChatService.write(sendByte);
+		} //catch (IOException e) {
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Check that we're actually connected before trying anything
+		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+			//Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+
+		// Check that there's actually something to send
+		if (message.length() > 0) {
+			// Get the message bytes and tell the BluetoothChatService to write
+			byte[] send = message.getBytes();
+			//mChatService.write(send);
+
+
+
+			// Reset out string buffer to zero and clear the edit text field
+			//mOutStringBuffer.setLength(0);
+			//mOutEditText.setText(mOutStringBuffer);
+		}
+	}
+
+	private void setStatus(int resId) {
+	}
+	private void setStatus(CharSequence subTitle){
+
+	}
+
+	private final Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			//FragmentActivity activity = getActivity();
+			switch (msg.what) {
+				case Constants.MESSAGE_STATE_CHANGE:
+					switch (msg.arg1) {
+						case BluetoothChatService.STATE_CONNECTED:
+							//setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
+							//mConversationArrayAdapter.clear();
+							break;
+						case BluetoothChatService.STATE_CONNECTING:
+							//setStatus(R.string.title_connecting);
+							break;
+						case BluetoothChatService.STATE_LISTEN:
+						case BluetoothChatService.STATE_NONE:
+							//setStatus(R.string.title_not_connected);
+							break;
+					}
+					break;
+				case Constants.MESSAGE_WRITE:
+					byte[] writeBuf = (byte[]) msg.obj;
+					// construct a string from the buffer
+					String writeMessage = new String(writeBuf);
+					//mConversationArrayAdapter.add("Me:  " + writeMessage);
+					break;
+				case Constants.MESSAGE_READ:
+					byte[] readBuf = (byte[]) msg.obj;
+					// construct a string from the valid bytes in the buffer
+					String readMessage = new String(readBuf, 0, msg.arg1);
+					//mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage);
+					break;
+				case Constants.MESSAGE_DEVICE_NAME:
+					// save the connected device's name
+					//mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
+					/*
+					if (null != activity) {
+						Toast.makeText(activity, "Connected to "
+								+ mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+					}
+					*/
+					break;
+				case Constants.MESSAGE_TOAST:
+					/*
+					if (null != activity) {
+						Toast.makeText(activity, msg.getData().getString(Constants.TOAST),
+								Toast.LENGTH_SHORT).show();
+					}
+					*/
+					break;
+			}
+		}
+	};
+
 
 	//----camera---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -261,7 +451,16 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		}
 
 
-		super.onResume();
+		// Performing this check in onResume() covers the case in which BT was
+		// not enabled during onStart(), so we were paused to enable it...
+		// onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
+		if (mChatService != null) {
+			// Only if the state is STATE_NONE, do we know that we haven't started already
+			if (mChatService.getState() == BluetoothChatService.STATE_NONE) {
+				// Start the Bluetooth chat services
+				mChatService.start();
+			}
+		}
 	}
 
 	@Override
@@ -323,25 +522,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	//送信
 	private void Transmission() {
-		String sendMsg = "";
-		byte[] sendByte;
 
-		calendar = Calendar.getInstance();
-		try {
-			sendMsg = calendar.get(Calendar.YEAR) + "," + calendar.get(Calendar.MONTH) + calendar.get(Calendar.DATE) + calendar.get(Calendar.HOUR_OF_DAY)
-					+ calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) + ","
-					+ cpu + "," + memo + "," + temp + "," + batt + ","
-					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ + "\n";
-			//scount = " " + String.valueOf(icount) + ", " + String.valueOf(lat) + ", " + String.valueOf(alt) + ", "+ String.valueOf(hei);
-			sendByte = sendMsg.getBytes();
-			//bcount = scount.getBytes();
-			//textview.setText(String.valueOf(scount) + "\n" + textview.getText());
-			//mOutput.write(sendByte);
-		} //catch (IOException e) {
-		catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 
 	}
@@ -433,7 +614,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		public void run() {
 			mHandler.post(new Runnable() {
 				public void run() {
-					Transmission();
+					sendMessage("abc");
 				}
 			});
 		}
@@ -493,158 +674,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 
-	//-----Bluetooth----------------------------------------------------------------------------
-	private static final int REQUEST_CONNECT_DEVICE = 1000;
-	private static final int REQUEST_ENABLE_BLUETOOTH = 2000;
-	private static final int REQUEST_SEND = 3000;
-	private BluetoothAdapter mBluetoothAdapter;
-	private BluetoothDevice mBtDevice;
-	private BluetoothSocket mBtSocket;
-	private OutputStream mOutput;
-	private String address;
 
-	private ProgressDialog connectingProgressDialog;
-	private boolean connected = false;
-	private boolean bt_error_pending = false;
-
-	private Handler btcHandler;
-
-
-	private BTCommunicator myBTCommunicator = null;
 	private Toast mLongToast;
 	private Toast mShortToast;
-
-	private Menu myMenu;
-
-	public static final int MENU_TOGGLE_CONNECT = Menu.FIRST;
-	public static final int MENU_QUIT = Menu.FIRST + 1;
-	public static final int MENU_HOME = Menu.FIRST + 2;
-
-	boolean newDevice;
-
-	public void btCreate(){
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		boolean btEnable = mBluetoothAdapter.isEnabled();
-		if(btEnable == true){
-			//BluetoothがONだった場合の処理
-			selectDevice();
-		}else{
-			//OFFだった場合、ONにすることを促すダイアログを表示する画面に遷移
-			Intent btOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(btOn, REQUEST_ENABLE_BLUETOOTH);
-		}
-		mLongToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
-		mShortToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
-	}
-	void selectDevice() {
-		Intent intent = new Intent(this, DeviceListActivity.class);
-		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
-	}
-
-	public void startBTCommunicator(String mac_address) {
-
-		connectingProgressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.connecting_please_wait), true);
-
-		if (myBTCommunicator == null) {
-			createBTCommunicator();
-		}
-
-		switch (((Thread) myBTCommunicator).getState()) {
-            /*
-             * Thread.getState() Therad.isAlive()
-        	 * スレッドの状態を返します。
-        	 * 		NEW				false
-        	 * 		RUNNABLE		true
-        	 */
-			case NEW:
-				myBTCommunicator.setMACAddress(mac_address);
-				myBTCommunicator.start();
-				break;
-			default:
-				connected = false;
-				myBTCommunicator = null;
-				createBTCommunicator();
-				myBTCommunicator.setMACAddress(mac_address);
-				myBTCommunicator.start();
-				break;
-		}
-		// optionMenu
-		updateButtonsAndMenu();
-
-	}
-
-	public void createBTCommunicator() {
-		// interestingly BT adapter needs to be obtained by the UI thread - so we pass it in in the constructor
-		myBTCommunicator = new BTCommunicator(this, myHandler, BluetoothAdapter.getDefaultAdapter());
-		btcHandler = myBTCommunicator.getHandler();
-	}
-
-	// receive messages from the BTCommunicator
-	final Handler myHandler = new Handler() {
-		@Override
-		public void handleMessage(Message myMessage) {
-			switch (myMessage.getData().getInt("message")) {
-				case BTCommunicator.STATE_CONNECTED:
-					connected = true;
-					connectingProgressDialog.dismiss();
-					// optionMenu
-					updateButtonsAndMenu();
-
-					// 接続した
-					showToastLong(getResources().getString(R.string.connected));
-					//BTsend();
-					break;
-				case BTCommunicator.STATE_CONNECTERROR:
-					connectingProgressDialog.dismiss();
-				case BTCommunicator.STATE_RECEIVEERROR:
-				case BTCommunicator.STATE_SENDERROR:
-					destroyBTCommunicator();
-
-					if (bt_error_pending == false) {
-						bt_error_pending = true;
-						// inform the user of the error with an AlertDialog
-						DialogFragment newFragment = MyAlertDialogFragment.newInstance(
-								R.string.bt_error_dialog_title, R.string.bt_error_dialog_message);
-						newFragment.show(getFragmentManager(), "dialog");
-					}
-
-					break;
-			}
-		}
-	};
-
-	public void doPositiveClick() {
-		bt_error_pending = false;
-		selectDevice();
-	}
-
-
-
-
-	void sendBTCmessage(int delay, int message) {
-		Bundle myBundle = new Bundle();
-		myBundle.putInt("message", message);
-		Message myMessage = myHandler.obtainMessage();
-		myMessage.setData(myBundle);
-
-		if (delay == 0)
-			btcHandler.sendMessage(myMessage);
-
-		else
-			btcHandler.sendMessageDelayed(myMessage, delay);
-	}
-
-	public void destroyBTCommunicator() {
-
-		if (myBTCommunicator != null) {
-			sendBTCmessage(BTCommunicator.NO_DELAY, BTCommunicator.DISCONNECT/*, 0, 0*/);
-			myBTCommunicator = null;
-		}
-
-		connected = false;
-		// 追加
-		updateButtonsAndMenu();
-	}
 
 	private void showToastShort(String textToShow) {
 		mShortToast.setText(textToShow);
@@ -656,54 +688,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mLongToast.show();
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		try {
-			mBtSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void updateButtonsAndMenu() {
-		if (myMenu == null) return;
-		myMenu.removeItem(MENU_TOGGLE_CONNECT);
-
-		if (connected) {
-			myMenu.add(0, MENU_TOGGLE_CONNECT, 1, getResources().getString(R.string.disconnect));
-		} else {
-			myMenu.add(0, MENU_TOGGLE_CONNECT, 1, getResources().getString(R.string.connect));
-		}
-	}
-
-
-	@Override
-	protected void onActivityResult(int requestCode, int ResultCode, Intent data){
-		switch (requestCode) {
-			case REQUEST_CONNECT_DEVICE:
-				if (ResultCode == Activity.RESULT_OK) {
-					// Get the device MAC address
-					address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-					startBTCommunicator(address);
-				}else{
-					//showToastLong("右上のメニューから次の動作を選択してください");
-
-				}
-				break;
-			case REQUEST_ENABLE_BLUETOOTH:
-				switch (ResultCode) {
-					case Activity.RESULT_OK:
-						selectDevice();
-						break;
-					case Activity.RESULT_CANCELED:
-						Intent btOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-						startActivityForResult(btOn, REQUEST_ENABLE_BLUETOOTH);
-						break;
-
-				}
-		}
-	}
 
 }
 
