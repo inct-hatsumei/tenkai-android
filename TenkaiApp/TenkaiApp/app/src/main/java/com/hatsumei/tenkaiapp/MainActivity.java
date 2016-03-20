@@ -141,6 +141,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		myRecorder = new MediaRecorder();
 
+		mLongToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
+		mShortToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 
 
 
@@ -214,6 +216,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		}
 
 		if (!mBluetoothAdapter.isEnabled()) {
+			showToastShort(getResources().getString(R.string.wait_till_bt_on));
 			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
 // Otherwise, setup the chat session
@@ -254,8 +257,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				} else {
 					// User did not enable Bluetooth or an error occured
 					Log.d(TAG, "BT not enabled");
-					Toast.makeText(this, "BT is OFF", Toast.LENGTH_SHORT).show();
-					finish();
+					showToastShort(getResources().getString(R.string.bt_needs_to_be_enabled));
+					Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+					startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+					//finish();
 				}
 				break;
 			case REQUEST_CONNECT_DEVICE:
@@ -341,6 +346,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 						case BluetoothChatService.STATE_CONNECTED:
 							//setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
 							//mConversationArrayAdapter.clear();
+							showToastLong(getResources().getString(R.string.connected));
 							break;
 						case BluetoothChatService.STATE_CONNECTING:
 							//setStatus(R.string.title_connecting);
