@@ -342,7 +342,7 @@ public class BluetoothChatService {
 				// successful connection or an exception
 				mmSocket.connect();
 				outputStream = mmSocket.getOutputStream();
-				outputStream.write('a');
+				//outputStream.write('a');
 			} catch (IOException e) {
 				// Close the socket
 				try {
