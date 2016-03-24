@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/git/tenkai-android/TenkaiApp/TenkaiApp/app/src/main/res/values/colors.xml -->
+    <eat-comment/>
+    <color name="bar">#d5d5d5</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <!-- From: file:/C:/git/tenkai-android/TenkaiApp/TenkaiApp/app/src/main/res/values/dimens.xml -->
+    <eat-comment/>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <!-- From: file:/C:/git/tenkai-android/TenkaiApp/TenkaiApp/app/src/main/res/values/strings.xml -->
+    <eat-comment/>
+    <string name="app_name">TenkaiApp</string>
+    <string name="bt_error_dialog_message">デバイスに接続できません</string>
+    <string name="bt_error_dialog_title">Bluetoothエラー</string>
+    <string name="bt_needs_to_be_enabled">Bluetoothを有効にする必要があります</string>
+    <string name="button_scan">デバイスを見つける</string>
+    <string name="connect">接続する</string>
+    <string name="connected">接続しました</string>
+    <string name="connecting_please_wait">接続中です \nしばらくお待ちください</string>
+    <string name="disconnect">接続を切る</string>
+    <string name="no_paired_nxt">ペアリングされたデバイスがありません</string>
+    <string name="none_paired">接続履歴のある機器はありません</string>
+    <string name="pairing_message">ペアリングしてから，接続してください</string>
+    <string name="problem_at_closing">接続を閉じるときに問題が発生しました</string>
+    <string name="title_paired_devices">接続履歴のあるデバイス</string>
+    <string name="wait_till_bt_on">Bluetoothを有効にします</string>
+    <!-- From: file:/C:/git/tenkai-android/TenkaiApp/TenkaiApp/app/src/main/res/values/styles.xml -->
+    <eat-comment/>
+    <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
+
+    </style>
+</resources>
