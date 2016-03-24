@@ -286,7 +286,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
 	}
 
-	private void sendMessage(String message) {
+	private void sendMessage() {
 
 		String sendMsg = "";
 		byte[] sendByte;
@@ -317,6 +317,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 
 		// Check that there's actually something to send
+		/*
 		if (message.length() > 0) {
 			// Get the message bytes and tell the BluetoothChatService to write
 			byte[] send = message.getBytes();
@@ -328,6 +329,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			//mOutStringBuffer.setLength(0);
 			//mOutEditText.setText(mOutStringBuffer);
 		}
+		*/
 	}
 
 	private void setStatus(int resId) {
@@ -367,6 +369,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					byte[] readBuf = (byte[]) msg.obj;
 					// construct a string from the valid bytes in the buffer
 					String readMessage = new String(readBuf, 0, msg.arg1);
+					showToastLong(readMessage);
+					readCommand(readMessage);
 					//mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage);
 					break;
 				case Constants.MESSAGE_DEVICE_NAME:
@@ -390,6 +394,43 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			}
 		}
 	};
+
+	private void readCommand(String message) {
+		if(message.equals("senddata") || message.equals("1")) {
+			sendMessage();
+		} else if (message.equals("senddataon") || message.equals("2")){
+			running = true;
+			if(running){
+				timerTask = new MyTimerTask();
+				mTimer = new Timer(true);
+				mTimer.scheduleAtFixedRate(timerTask, 0, 500);
+			}
+		} else if (message.equals("senddataoff") || message.equals("3")){
+			running = false;
+			mTimer.cancel();
+			mTimer=null;
+		}
+		else if (message.equals("videorecstart") || message.equals("4")){
+			if (!isRecording) {
+				cam.release();
+				initializeVideoSettings(); // MediaRecorderの設定
+				myRecorder.start(); // 録画開始
+				isRecording = true; // 録画中のフラグを立てる
+			}
+		} else if (message.equals("videorecstop") || message.equals("5")) {
+			myRecorder.stop(); // 録画停止
+			myRecorder.reset(); // オブジェクトをリセット
+			//myRecorder.release();
+			isRecording = false;
+		} else if (message.equals("soundon") || message.equals("6")){
+
+		} else if (message.equals("soundoff") || message.equals("7")) {
+
+		} else if (message.equals("exit") || message.equals("0")) {
+
+		}
+
+	}
 
 
 	//----camera---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -620,7 +661,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		public void run() {
 			mHandler.post(new Runnable() {
 				public void run() {
-					sendMessage("abc");
+					sendMessage();
 				}
 			});
 		}
