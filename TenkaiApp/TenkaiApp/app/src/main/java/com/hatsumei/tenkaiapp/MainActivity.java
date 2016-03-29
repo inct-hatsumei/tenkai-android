@@ -13,6 +13,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Message;
@@ -61,6 +62,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private TextView textView7;
 	private TextView textView8;
 	private ToggleButton toggleButton1;
+	private ToggleButton toggleButton2;
+
+	private MediaPlayer mediaPlayer = null;
+	private Alarm mAlarm;
 
 
 
@@ -135,6 +140,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		textView8 = (TextView) findViewById(R.id.textView8);
 		toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
 		toggleButton1 = (ToggleButton) findViewById(R.id.toggleButton1);
+		toggleButton2 = (ToggleButton)findViewById(R.id.toggleButton2);
 		mySurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
 		SurfaceHolder holder = mySurfaceView.getHolder();
 		holder.addCallback(this);
@@ -144,6 +150,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mLongToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
 		mShortToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 
+		mediaPlayer = MediaPlayer.create(this, R.raw.hangouts_video_call);
 
 
 		toggleButton.setOnClickListener(new View.OnClickListener() {
@@ -207,6 +214,18 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			}
 
 		});
+
+		toggleButton2.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mAlarm = new Alarm(mediaPlayer);
+				if(toggleButton2.isChecked()){
+					mAlarm.readMessage("ON");
+				} else if(toggleButton2.isChecked() == false) {
+					mAlarm.readMessage("OFF");
+				}
+			}
+		});
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 		if (mBluetoothAdapter == null) {
@@ -244,6 +263,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		if (mChatService != null) {
 			mChatService.stop();
 		}
+		mAlarm.readMessage("Destroy");
 	}
 
 
@@ -423,9 +443,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			//myRecorder.release();
 			isRecording = false;
 		} else if (message.equals("soundon") || message.equals("6")){
+			mAlarm = new Alarm(mediaPlayer);
+			mAlarm.readMessage("ON");
 
 		} else if (message.equals("soundoff") || message.equals("7")) {
-
+			mAlarm = new Alarm(mediaPlayer);
+			mAlarm.readMessage("OFF");
 		} else if (message.equals("exit") || message.equals("0")) {
 
 		}
