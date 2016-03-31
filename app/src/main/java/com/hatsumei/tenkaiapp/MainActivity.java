@@ -293,8 +293,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 		calendar = Calendar.getInstance();
 		try {
-			sendMsg = calendar.get(Calendar.YEAR) + "," + calendar.get(Calendar.MONTH) + calendar.get(Calendar.DATE) + calendar.get(Calendar.HOUR_OF_DAY)
-					+ calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) + ","
+			int tmp=calendar.get(Calendar.MONTH)+1;//calendar.get(Calendar.MONTH)で取得出来るのは今の月-1なので、一度intにして+1してStringに変換する
+			sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp)+"/"+ + calendar.get(Calendar.DATE) +" "+ calendar.get(Calendar.HOUR_OF_DAY)+":"
+					+ calendar.get(Calendar.MINUTE) +":"+ calendar.get(Calendar.SECOND) +":"+ calendar.get(Calendar.MILLISECOND) + ","
 					+ cpu + "," + memo + "," + temp + "," + batt + ","
 					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ + "\n";
 			//scount = " " + String.valueOf(icount) + ", " + String.valueOf(lat) + ", " + String.valueOf(alt) + ", "+ String.valueOf(hei);
