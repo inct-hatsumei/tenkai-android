@@ -16,6 +16,7 @@ import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
@@ -26,6 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.Calendar;
 import java.util.List;
@@ -66,9 +69,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	private MediaPlayer mediaPlayer = null;
 	private Alarm mAlarm;
-
-
-
 
 
 	// MediaRecorderの初期設定
@@ -113,11 +113,15 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private static final int REQUEST_ENABLE_BT = 1;
 	private static final int REQUEST_CONNECT_DEVICE = 2;
 
+	private static final String ADDRESS = "7C:B7:33:06:1E:D0";
+
 	private BluetoothChatService mChatService = null;
 
 	private StringBuffer mOutStringBuffer;
 	private EditText mOutEditText;
 	private ToggleButton toggleButton;
+
+	private String log = "";
 
 	String address;
 
@@ -126,6 +130,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		Log.v("file", Environment.getExternalStorageDirectory().getPath());
 
 		Lmanager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -140,7 +146,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		textView8 = (TextView) findViewById(R.id.textView8);
 		toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
 		toggleButton1 = (ToggleButton) findViewById(R.id.toggleButton1);
-		toggleButton2 = (ToggleButton)findViewById(R.id.toggleButton2);
+		toggleButton2 = (ToggleButton) findViewById(R.id.toggleButton2);
 		mySurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
 		SurfaceHolder holder = mySurfaceView.getHolder();
 		holder.addCallback(this);
@@ -159,7 +165,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 				if (toggleButton.isChecked()) {
 					running = true;
-					if(running){
+					if (running) {
 						timerTask = new MyTimerTask();
 						mTimer = new Timer(true);
 						mTimer.scheduleAtFixedRate(timerTask, 0, 500);
@@ -169,8 +175,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				} else if (toggleButton.isChecked() == false) {
 					running = false;
 					mTimer.cancel();
-					mTimer=null;
-
+					mTimer = null;
+					fileout(log.getBytes());
 				}
 			}
 		});
@@ -219,9 +225,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			@Override
 			public void onClick(View v) {
 				mAlarm = new Alarm(mediaPlayer);
-				if(toggleButton2.isChecked()){
+				if (toggleButton2.isChecked()) {
 					mAlarm.readMessage("ON");
-				} else if(toggleButton2.isChecked() == false) {
+				} else if (toggleButton2.isChecked() == false) {
 					mAlarm.readMessage("OFF");
 				}
 			}
@@ -236,8 +242,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 		if (!mBluetoothAdapter.isEnabled()) {
 			showToastShort(getResources().getString(R.string.wait_till_bt_on));
-			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+			//Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			//startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+			mBluetoothAdapter.enable();
 // Otherwise, setup the chat session
 		} else {
 			//if (mChatService == null)
@@ -304,6 +311,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mChatService = new BluetoothChatService(mHandler);
 		Intent intent = new Intent(this, DeviceListActivity.class);
 		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
+		//address = ADDRESS;
+		//BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+		boolean secure = true;
+		//mChatService.connect(device, secure);
 	}
 
 	private void sendMessage() {
@@ -322,6 +333,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			//bcount = scount.getBytes();
 			//textview.setText(String.valueOf(scount) + "\n" + textview.getText());
 			//mOutput.write(sendByte);
+			log += sendMsg;
 			mChatService.write(sendByte);
 		} //catch (IOException e) {
 		catch (Exception e) {
@@ -354,7 +366,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	private void setStatus(int resId) {
 	}
-	private void setStatus(CharSequence subTitle){
+
+	private void setStatus(CharSequence subTitle) {
 
 	}
 
@@ -416,21 +429,20 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	};
 
 	private void readCommand(String message) {
-		if(message.equals("senddata") || message.equals("1")) {
+		if (message.equals("senddata") || message.equals("1")) {
 			sendMessage();
-		} else if (message.equals("senddataon") || message.equals("2")){
+		} else if (message.equals("senddataon") || message.equals("2")) {
 			running = true;
-			if(running){
+			if (running) {
 				timerTask = new MyTimerTask();
 				mTimer = new Timer(true);
 				mTimer.scheduleAtFixedRate(timerTask, 0, 500);
 			}
-		} else if (message.equals("senddataoff") || message.equals("3")){
+		} else if (message.equals("senddataoff") || message.equals("3")) {
 			running = false;
 			mTimer.cancel();
-			mTimer=null;
-		}
-		else if (message.equals("videorecstart") || message.equals("4")){
+			mTimer = null;
+		} else if (message.equals("videorecstart") || message.equals("4")) {
 			if (!isRecording) {
 				cam.release();
 				initializeVideoSettings(); // MediaRecorderの設定
@@ -442,7 +454,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			myRecorder.reset(); // オブジェクトをリセット
 			//myRecorder.release();
 			isRecording = false;
-		} else if (message.equals("soundon") || message.equals("6")){
+		} else if (message.equals("soundon") || message.equals("6")) {
 			mAlarm = new Alarm(mediaPlayer);
 			mAlarm.readMessage("ON");
 
@@ -587,12 +599,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 
-
-
-
 	//送信
 	private void Transmission() {
-
 
 
 	}
@@ -744,7 +752,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 
-
 	private Toast mLongToast;
 	private Toast mShortToast;
 
@@ -758,7 +765,21 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mLongToast.show();
 	}
 
+	private void fileout(byte[] bytes) {
+
+		Log.v("file", Environment.getExternalStorageDirectory().getPath());
+
+
+		FileOutputStream fileOutputStream;
+		try {
+			fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/tenlog.csv", true);
+			fileOutputStream.write(bytes);
+			Log.v("output", "GO");
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		}
+
+	}
 
 }
-
 
