@@ -740,7 +740,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		myRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4); // 繝輔ぃ繧､繝ｫ繝輔か繝ｼ繝槭ャ繝医ｒ謖�ｮ�
 		myRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP); // 繝薙ョ繧ｪ繧ｨ繝ｳ繧ｳ繝ｼ繝繧呈欠螳�
 
-		myRecorder.setOutputFile("/sdcard/sample.mp4"); // 蜍慕判縺ｮ蜃ｺ蜉帛�縺ｨ縺ｪ繧九ヵ繧｡繧､繝ｫ繝代せ繧呈欠螳�
+		myRecorder.setOutputFile(Environment.getExternalStorageDirectory().getPath()+"/sample.mp4"); // 蜍慕判縺ｮ蜃ｺ蜉帛�縺ｨ縺ｪ繧九ヵ繧｡繧､繝ｫ繝代せ繧呈欠螳�
 		myRecorder.setVideoFrameRate(30); // 蜍慕判縺ｮ繝輔Ξ繝ｼ繝�繝ｬ繝ｼ繝医ｒ謖�ｮ�
 		myRecorder.setVideoSize(1920, 1080); // 蜍慕判縺ｮ繧ｵ繧､繧ｺ繧呈欠螳�
 		myRecorder.setPreviewDisplay(v_holder.getSurface()); // 骭ｲ逕ｻ荳ｭ縺ｮ繝励Ξ繝薙Η繝ｼ縺ｫ蛻ｩ逕ｨ縺吶ｋ繧ｵ繝ｼ繝輔ぉ繧､繧ｹ繧呈欠螳壹☆繧�
