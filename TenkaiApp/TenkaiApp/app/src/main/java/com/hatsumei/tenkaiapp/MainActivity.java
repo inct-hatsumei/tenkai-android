@@ -2,7 +2,9 @@ package com.hatsumei.tenkaiapp;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,6 +22,7 @@ import android.os.Environment;
 import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.EditText;
@@ -248,7 +251,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 // Otherwise, setup the chat session
 		} else {
 			//if (mChatService == null)
-			selectDevice();
+			//selectDevice();
 		}
 
 
@@ -280,7 +283,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				// When the request to enable Bluetooth returns
 				if (resultCode == Activity.RESULT_OK) {
 					// Bluetooth is now enabled, so set up a chat session
-					selectDevice();
+					//selectDevice();
 				} else {
 					// User did not enable Bluetooth or an error occured
 					Log.d(TAG, "BT not enabled");
@@ -463,6 +466,11 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			mAlarm = new Alarm(mediaPlayer);
 			mAlarm.readMessage("OFF");
 		} else if (message.equals("exit") || message.equals("0")) {
+			Context context;
+			int waitperiod;
+			context = getApplicationContext();
+			waitperiod = 5000;
+			restart(context, waitperiod);
 
 		}
 
@@ -736,11 +744,17 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 
 	public void initializeVideoSettings() {
+
+		calendar = Calendar.getInstance();
+		int tmp=calendar.get(Calendar.MONTH)+1;
+		String filename = "/" + calendar.get(Calendar.YEAR) + String.valueOf(tmp) + calendar.get(Calendar.DATE) + calendar.get(Calendar.HOUR_OF_DAY)
+				+ calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) + ".mp4";
+
 		myRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT); // 骭ｲ逕ｻ縺ｮ蜈･蜉帙た繝ｼ繧ｹ繧呈欠螳�
 		myRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4); // 繝輔ぃ繧､繝ｫ繝輔か繝ｼ繝槭ャ繝医ｒ謖�ｮ�
 		myRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP); // 繝薙ョ繧ｪ繧ｨ繝ｳ繧ｳ繝ｼ繝繧呈欠螳�
 
-		myRecorder.setOutputFile(Environment.getExternalStorageDirectory().getPath()+"/sample.mp4"); // 蜍慕判縺ｮ蜃ｺ蜉帛�縺ｨ縺ｪ繧九ヵ繧｡繧､繝ｫ繝代せ繧呈欠螳�
+		myRecorder.setOutputFile(Environment.getExternalStorageDirectory().getPath()+filename/*"/sample.mp4"*/); // 蜍慕判縺ｮ蜃ｺ蜉帛�縺ｨ縺ｪ繧九ヵ繧｡繧､繝ｫ繝代せ繧呈欠螳�
 		myRecorder.setVideoFrameRate(30); // 蜍慕判縺ｮ繝輔Ξ繝ｼ繝�繝ｬ繝ｼ繝医ｒ謖�ｮ�
 		myRecorder.setVideoSize(1920, 1080); // 蜍慕判縺ｮ繧ｵ繧､繧ｺ繧呈欠螳�
 		myRecorder.setPreviewDisplay(v_holder.getSurface()); // 骭ｲ逕ｻ荳ｭ縺ｮ繝励Ξ繝薙Η繝ｼ縺ｫ蛻ｩ逕ｨ縺吶ｋ繧ｵ繝ｼ繝輔ぉ繧､繧ｹ繧呈欠螳壹☆繧�
@@ -768,18 +782,48 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	private void fileout(byte[] bytes) {
 
+		calendar = Calendar.getInstance();
+		int tmp=calendar.get(Calendar.MONTH)+1;
+		String filename = "/" + calendar.get(Calendar.YEAR) + String.valueOf(tmp) + calendar.get(Calendar.DATE) + calendar.get(Calendar.HOUR_OF_DAY)
+				+ calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) + ".csv";
+
 		Log.v("file", Environment.getExternalStorageDirectory().getPath());
 
 
 		FileOutputStream fileOutputStream;
 		try {
-			fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/tenlog.csv", true);
+			fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + filename, true);
 			fileOutputStream.write(bytes);
 			Log.v("output", "GO");
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}
+	}
 
+	void restart(Context cnt, int period) {
+		Intent mainActivity  = new Intent(cnt, MainActivity.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(cnt, 0, mainActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager alarmManager = (AlarmManager)cnt.getSystemService(Context.ALARM_SERVICE);
+		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + period, pendingIntent);
+		finish();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+
+		return true;
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+
+		if(id == R.id.device_select) {
+			selectDevice();
+
+			return true;
+		}
+		return  super.onOptionsItemSelected(item);
 	}
 
 }
