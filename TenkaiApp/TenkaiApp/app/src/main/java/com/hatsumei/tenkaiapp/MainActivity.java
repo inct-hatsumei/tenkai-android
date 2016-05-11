@@ -15,11 +15,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,7 +81,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private MediaRecorder myRecorder;
 	private boolean isRecording;
 
-
 	private int scale;
 	private int level;
 
@@ -100,10 +102,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	Timer mTimer2 = null;
 	Handler mHandler2 = new Handler();
 
-	int icount = 0;
-	//String scount = "";
-	//double lat, hei, alt;
-	//byte[] bcount;
 	SurfaceHolder v_holder;
 
 	Calendar calendar;
@@ -124,9 +122,13 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private EditText mOutEditText;
 	private ToggleButton toggleButton;
 
+
 	private String log = "";
 
 	String address;
+
+	int ringMaxVolume;
+	int flags;
 
 
 	@Override
@@ -160,7 +162,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mShortToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 
 		mediaPlayer = MediaPlayer.create(this, R.raw.hangouts_video_call);
-
 
 		toggleButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -229,8 +230,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			public void onClick(View v) {
 				mAlarm = new Alarm(mediaPlayer);
 				if (toggleButton2.isChecked()) {
+					setVolume(true);
 					mAlarm.readMessage("ON");
 				} else if (toggleButton2.isChecked() == false) {
+					setVolume(false);
 					mAlarm.readMessage("OFF");
 				}
 			}
@@ -259,6 +262,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mTimer2 = new Timer(true);
 		mTimer2.scheduleAtFixedRate(timerTask2, 0, 1000);
 
+		screenlock(0);
+
+		
 	}
 
 	@Override
@@ -274,6 +280,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			mChatService.stop();
 		}
 		mAlarm.readMessage("Destroy");
+
+		screenlock(1);
 	}
 
 
@@ -459,10 +467,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			//myRecorder.release();
 			isRecording = false;
 		} else if (message.equals("soundon") || message.equals("6")) {
+			setVolume(true);
 			mAlarm = new Alarm(mediaPlayer);
 			mAlarm.readMessage("ON");
 
 		} else if (message.equals("soundoff") || message.equals("7")) {
+			setVolume(false);
 			mAlarm = new Alarm(mediaPlayer);
 			mAlarm.readMessage("OFF");
 		} else if (message.equals("exit") || message.equals("0")) {
@@ -557,6 +567,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	@Override
 	public void onLocationChanged(Location location) {
 		//		// TODO Auto-generated method stub
+
 
 		lat = String.valueOf(location.getLatitude());
 		textView6.setText("北緯：" + lat);
@@ -808,6 +819,35 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		finish();
 	}
 
+	void setVolume(boolean volume) {
+		AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		flags = AudioManager.FLAG_SHOW_UI;
+		int ringvolume = 0;
+		if(volume) {
+			ringvolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+			audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+		}else {
+			ringvolume = 0;
+			audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+		}
+		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringvolume, flags);
+	}
+
+	void screenlock(int i) {
+		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+		PowerManager.WakeLock lock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "MY tag");
+
+		switch(i) {
+			case 0:
+				lock.acquire();
+				break;
+			case 1:
+				lock.release();
+				break;
+		}
+
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -822,6 +862,13 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			selectDevice();
 
 			return true;
+		}
+		else if (id == R.id.restart) {
+			Context context;
+			int waitperiod;
+			context = getApplicationContext();
+			waitperiod = 5000;
+			restart(context, waitperiod);
 		}
 		return  super.onOptionsItemSelected(item);
 	}

@@ -18,4 +18,5 @@
     <string name="bt_needs_to_be_enabled">Bluetoothを有効にする必要があります</string>
 
     <string name="device_select">デバイス選択</string>
+    <string name="restart">再起動</string>
 </resources>

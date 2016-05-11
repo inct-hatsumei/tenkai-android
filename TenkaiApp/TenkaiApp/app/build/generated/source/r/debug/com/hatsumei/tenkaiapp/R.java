@@ -24,6 +24,7 @@ public final class R {
         public static final int button_scan=0x7f0a0017;
         public static final int device_select=0x7f0a0018;
         public static final int paired_devices=0x7f0a0016;
+        public static final int restart=0x7f0a0019;
         public static final int surfaceView=0x7f0a0000;
         public static final int textView=0x7f0a000a;
         public static final int textView1=0x7f0a0001;
@@ -77,8 +78,9 @@ public final class R {
         public static final int none_paired=0x7f07000b;
         public static final int pairing_message=0x7f07000c;
         public static final int problem_at_closing=0x7f07000d;
-        public static final int title_paired_devices=0x7f07000e;
-        public static final int wait_till_bt_on=0x7f07000f;
+        public static final int restart=0x7f07000e;
+        public static final int title_paired_devices=0x7f07000f;
+        public static final int wait_till_bt_on=0x7f070010;
     }
     public static final class style {
         public static final int AppTheme=0x7f080000;
