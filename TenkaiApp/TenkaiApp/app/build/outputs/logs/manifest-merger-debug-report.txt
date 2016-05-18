@@ -1,6 +1,6 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:2:1-37:12
+ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:2:1-36:12
 	xmlns:android
 		ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:4:5-63
 	package
@@ -42,7 +42,7 @@ ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifes
 	android:name
 		ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:12:22-65
 application
-ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:16:5-35:19
+ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:16:5-34:19
 	android:supportsRtl
 		ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:20:9-35
 	android:label
@@ -70,9 +70,13 @@ ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifes
 	android:name
 		ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:28:27-74
 activity#com.hatsumei.tenkaiapp.DeviceListActivity
-ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:31:9-33:20
+ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:31:9-65
 	android:name
 		ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:31:19-53
+activity#com.hatsumei.tenkaiapp.Check
+ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:32:9-52
+	android:name
+		ADDED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml:32:19-40
 uses-sdk
 INJECTED from C:\git\tenkai-android\TenkaiApp\TenkaiApp\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 	android:targetSdkVersion

@@ -11,6 +11,7 @@
     <string name="bt_error_dialog_title">Bluetoothエラー</string>
     <string name="bt_needs_to_be_enabled">Bluetoothを有効にする必要があります</string>
     <string name="button_scan">デバイスを見つける</string>
+    <string name="check">各機能チェック</string>
     <string name="connect">接続する</string>
     <string name="connected">接続しました</string>
     <string name="connecting_please_wait">接続中です \nしばらくお待ちください</string>

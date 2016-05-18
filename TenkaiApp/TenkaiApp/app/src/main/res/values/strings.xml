@@ -19,4 +19,5 @@
 
     <string name="device_select">デバイス選択</string>
     <string name="restart">再起動</string>
+    <string name="check">各機能チェック</string>
 </resources>

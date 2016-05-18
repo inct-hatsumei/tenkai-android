@@ -32,8 +32,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.hatsumei.tenkaiapp.DeviceListActivity" >
-        </activity>
+        <activity android:name="com.hatsumei.tenkaiapp.DeviceListActivity" />
+        <activity android:name="com.hatsumei.tenkaiapp.Check" />
     </application>
 
 </manifest>

@@ -24,6 +24,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.LongSparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -77,6 +78,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private Alarm mAlarm;
 
 
+	private Toast mLongToast;
+	private Toast mShortToast;
+
 	// MediaRecorderの初期設定
 	private MediaRecorder myRecorder;
 	private boolean isRecording;
@@ -88,13 +92,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	String memo = "";
 	String tmpr = "";
 	String batt = "";
-	String lat = "1";
-	String alt = "2";
-	String hei = "3";
+	String lat = "0";
+	String alt = "0";
+	String hei = "0";
 	String gabX = "";
 	String gabY = "";
 	String gabZ = "";
-	float mLaptime = 0.0f;
 	MyTimerTask timerTask = null;
 	Timer mTimer = null;
 
@@ -121,6 +124,15 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private StringBuffer mOutStringBuffer;
 	private EditText mOutEditText;
 	private ToggleButton toggleButton;
+
+	boolean bt_on = false;
+	boolean bt_connected = false;
+	boolean gps_got = false;
+	boolean sensor_got = false;
+	boolean cpu_got = false;
+	boolean memory_got = false;
+	boolean battery_got = false;
+	boolean temp_got  =false;
 
 
 	private String log = "";
@@ -185,6 +197,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			}
 		});
 /*
+
 		toggleButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -251,8 +264,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			//Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			//startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
 			mBluetoothAdapter.enable();
+			bt_on = true;
 // Otherwise, setup the chat session
 		} else {
+			bt_on = true;
 			//if (mChatService == null)
 			//selectDevice();
 		}
@@ -262,9 +277,11 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mTimer2 = new Timer(true);
 		mTimer2.scheduleAtFixedRate(timerTask2, 0, 1000);
 
+		Toast.makeText(this, "GPSを有効にしてください", Toast.LENGTH_LONG).show();
 		screenlock(0);
 
-		
+
+
 	}
 
 	@Override
@@ -394,6 +411,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 							//setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
 							//mConversationArrayAdapter.clear();
 							showToastLong(getResources().getString(R.string.connected));
+							bt_connected = true;
 							break;
 						case BluetoothChatService.STATE_CONNECTING:
 							//setStatus(R.string.title_connecting);
@@ -575,6 +593,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		textView7.setText("東経：" + alt);
 		hei = String.valueOf(location.getAltitude());
 		textView8.setText("高度：" + hei);
+
+		gps_got = true;
 	}
 
 
@@ -593,6 +613,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			textView4.setText("Y軸:" + gabY);
 			gabZ = String.valueOf(event.values[SensorManager.DATA_Z]);
 			textView5.setText("Z軸:" + gabZ);
+			sensor_got = true;
 		}
 		/*
 		if (event.sensor.getType() == Sensor.TYPE_TEMPERATURE) {
@@ -669,15 +690,19 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		if (1 >= usage) {
 			result.setText(String.valueOf(usage * 100));
 			cpu = String.valueOf(usage * 100);
+			cpu_got = true;
 		} else if (2 >= usage) {
 			result.setText(String.valueOf((usage * 100 / 2)));
 			cpu = String.valueOf((usage * 100 / 2));
+			cpu_got = true;
 		} else if (3 >= usage) {
 			result.setText(String.valueOf((usage * 100 / 3)));
 			cpu = String.valueOf((usage * 100 / 3));
+			cpu_got = true;
 		} else {
 			result.setText(String.valueOf((usage * 100 / 4)));
 			cpu = String.valueOf((usage * 100 / 4));
+			cpu_got = true;
 		}
 		try {
 			ActivityManager.MemoryInfo info = new ActivityManager.MemoryInfo();
@@ -686,6 +711,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 			textView12.setText(String.valueOf(100 * (info.totalMem / 1024.00 - info.availMem / 1024.00) / (info.totalMem / 1024.00)));
 			memo = String.valueOf(100 * (info.totalMem / 1024.00 - info.availMem / 1024.00) / (info.totalMem / 1024.00));
+			memory_got = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -739,7 +765,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				scale = intent.getIntExtra("scale", 0);
 				// 電池残量
 				level = intent.getIntExtra("level", 0);
+				battery_got = true;
 				temp = intent.getIntExtra("temperature", 0) / 10;
+				temp_got = true;
 			}
 
 			//結果を描写
@@ -778,8 +806,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 
-	private Toast mLongToast;
-	private Toast mShortToast;
 
 	private void showToastShort(String textToShow) {
 		mShortToast.setText(textToShow);
@@ -869,6 +895,19 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			context = getApplicationContext();
 			waitperiod = 5000;
 			restart(context, waitperiod);
+		}
+		else if (id == R.id.check) {
+
+			Intent intent  = new Intent(MainActivity.this, Check.class);
+			intent.putExtra("bt_on", bt_on);
+			intent.putExtra("bt_connect", bt_connected);
+			intent.putExtra("gps_got", gps_got);
+			intent.putExtra("sensor_got", sensor_got);
+			intent.putExtra("cpu_got", cpu_got);
+			intent.putExtra("memory_got", memory_got);
+			intent.putExtra("battery_got", battery_got);
+			intent.putExtra("temp_got", temp_got);
+			startActivity(intent);
 		}
 		return  super.onOptionsItemSelected(item);
 	}
