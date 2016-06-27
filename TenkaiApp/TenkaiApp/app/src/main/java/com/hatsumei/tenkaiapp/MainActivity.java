@@ -132,7 +132,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	boolean cpu_got = false;
 	boolean memory_got = false;
 	boolean battery_got = false;
-	boolean temp_got  =false;
+	boolean temp_got = false;
 
 
 	private String log = "";
@@ -280,13 +280,13 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		Toast.makeText(this, "GPSを有効にしてください", Toast.LENGTH_LONG).show();
 		screenlock(0);
 
-
-
+		autoConnect();
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
+
 
 	}
 
@@ -335,6 +335,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		}
 	}
 
+	void autoConnect() {
+		mChatService = new BluetoothChatService(mHandler);
+		Intent intent = new Intent(this, SplashActivity.class);
+		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
+	}
+
 	void selectDevice() {
 		mChatService = new BluetoothChatService(mHandler);
 		Intent intent = new Intent(this, DeviceListActivity.class);
@@ -352,9 +358,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 		calendar = Calendar.getInstance();
 		try {
-			int tmp=calendar.get(Calendar.MONTH)+1;//calendar.get(Calendar.MONTH)で取得出来るのは今の月-1なので、一度intにして+1してStringに変換する
-			sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp)+"/"+ + calendar.get(Calendar.DATE) +" "+ calendar.get(Calendar.HOUR_OF_DAY)+":"
-					+ calendar.get(Calendar.MINUTE) +":"+ calendar.get(Calendar.SECOND) +":"+ calendar.get(Calendar.MILLISECOND) + ","
+			int tmp = calendar.get(Calendar.MONTH) + 1;//calendar.get(Calendar.MONTH)で取得出来るのは今の月-1なので、一度intにして+1してStringに変換する
+			sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp) + "/" + +calendar.get(Calendar.DATE) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":"
+					+ calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + ":" + calendar.get(Calendar.MILLISECOND) + ","
 					+ cpu + "," + memo + "," + temp + "," + batt + ","
 					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ + "\n";
 			//scount = " " + String.valueOf(icount) + ", " + String.valueOf(lat) + ", " + String.valueOf(alt) + ", "+ String.valueOf(hei);
@@ -785,7 +791,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	public void initializeVideoSettings() {
 
 		calendar = Calendar.getInstance();
-		int tmp=calendar.get(Calendar.MONTH)+1;
+		int tmp = calendar.get(Calendar.MONTH) + 1;
 		String filename = "/" + calendar.get(Calendar.YEAR) + String.valueOf(tmp) + calendar.get(Calendar.DATE) + calendar.get(Calendar.HOUR_OF_DAY)
 				+ calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) + ".mp4";
 
@@ -793,7 +799,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		myRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4); // 繝輔ぃ繧､繝ｫ繝輔か繝ｼ繝槭ャ繝医ｒ謖�ｮ�
 		myRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP); // 繝薙ョ繧ｪ繧ｨ繝ｳ繧ｳ繝ｼ繝繧呈欠螳�
 
-		myRecorder.setOutputFile(Environment.getExternalStorageDirectory().getPath()+filename/*"/sample.mp4"*/); // 蜍慕判縺ｮ蜃ｺ蜉帛�縺ｨ縺ｪ繧九ヵ繧｡繧､繝ｫ繝代せ繧呈欠螳�
+		myRecorder.setOutputFile(Environment.getExternalStorageDirectory().getPath() + filename/*"/sample.mp4"*/); // 蜍慕判縺ｮ蜃ｺ蜉帛�縺ｨ縺ｪ繧九ヵ繧｡繧､繝ｫ繝代せ繧呈欠螳�
 		myRecorder.setVideoFrameRate(30); // 蜍慕判縺ｮ繝輔Ξ繝ｼ繝�繝ｬ繝ｼ繝医ｒ謖�ｮ�
 		myRecorder.setVideoSize(1920, 1080); // 蜍慕判縺ｮ繧ｵ繧､繧ｺ繧呈欠螳�
 		myRecorder.setPreviewDisplay(v_holder.getSurface()); // 骭ｲ逕ｻ荳ｭ縺ｮ繝励Ξ繝薙Η繝ｼ縺ｫ蛻ｩ逕ｨ縺吶ｋ繧ｵ繝ｼ繝輔ぉ繧､繧ｹ繧呈欠螳壹☆繧�
@@ -804,7 +810,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			Log.e("recMovie", e.getMessage());
 		}
 	}
-
 
 
 	private void showToastShort(String textToShow) {
@@ -820,7 +825,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private void fileout(byte[] bytes) {
 
 		calendar = Calendar.getInstance();
-		int tmp=calendar.get(Calendar.MONTH)+1;
+		int tmp = calendar.get(Calendar.MONTH) + 1;
 		String filename = "/" + calendar.get(Calendar.YEAR) + String.valueOf(tmp) + calendar.get(Calendar.DATE) + calendar.get(Calendar.HOUR_OF_DAY)
 				+ calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND) + calendar.get(Calendar.MILLISECOND) + ".csv";
 
@@ -838,21 +843,21 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 	void restart(Context cnt, int period) {
-		Intent mainActivity  = new Intent(cnt, MainActivity.class);
+		Intent mainActivity = new Intent(cnt, MainActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(cnt, 0, mainActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-		AlarmManager alarmManager = (AlarmManager)cnt.getSystemService(Context.ALARM_SERVICE);
+		AlarmManager alarmManager = (AlarmManager) cnt.getSystemService(Context.ALARM_SERVICE);
 		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + period, pendingIntent);
 		finish();
 	}
 
 	void setVolume(boolean volume) {
-		AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		flags = AudioManager.FLAG_SHOW_UI;
 		int ringvolume = 0;
-		if(volume) {
+		if (volume) {
 			ringvolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 			audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
-		}else {
+		} else {
 			ringvolume = 0;
 			audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
 		}
@@ -860,10 +865,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 	void screenlock(int i) {
-		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		PowerManager.WakeLock lock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "MY tag");
 
-		switch(i) {
+		switch (i) {
 			case 0:
 				lock.acquire();
 				break;
@@ -880,25 +885,24 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 		return true;
 	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 
-		if(id == R.id.device_select) {
+		if (id == R.id.device_select) {
 			selectDevice();
 
 			return true;
-		}
-		else if (id == R.id.restart) {
+		} else if (id == R.id.restart) {
 			Context context;
 			int waitperiod;
 			context = getApplicationContext();
 			waitperiod = 5000;
 			restart(context, waitperiod);
-		}
-		else if (id == R.id.check) {
+		} else if (id == R.id.check) {
 
-			Intent intent  = new Intent(MainActivity.this, Check.class);
+			Intent intent = new Intent(MainActivity.this, Check.class);
 			intent.putExtra("bt_on", bt_on);
 			intent.putExtra("bt_connect", bt_connected);
 			intent.putExtra("gps_got", gps_got);
@@ -909,7 +913,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			intent.putExtra("temp_got", temp_got);
 			startActivity(intent);
 		}
-		return  super.onOptionsItemSelected(item);
+		return super.onOptionsItemSelected(item);
 	}
 
 }

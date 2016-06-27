@@ -34,6 +34,7 @@
         </activity>
         <activity android:name="com.hatsumei.tenkaiapp.DeviceListActivity" />
         <activity android:name="com.hatsumei.tenkaiapp.Check" />
+        <activity android:name="com.hatsumei.tenkaiapp.SplashActivity" />
     </application>
 
 </manifest>
