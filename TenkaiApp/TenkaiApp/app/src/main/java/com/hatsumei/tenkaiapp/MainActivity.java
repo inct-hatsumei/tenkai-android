@@ -22,11 +22,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.LongSparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.EditText;
@@ -138,6 +140,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private String log = "";
 
 	String address;
+	String devicename = "USER";
 
 	int ringMaxVolume;
 	int flags;
@@ -321,6 +324,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			case REQUEST_CONNECT_DEVICE:
 				if (resultCode == Activity.RESULT_OK) {
 					// Get the device MAC address
+					devicename = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_NAME);
 					address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 					BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 					boolean secure = true;
@@ -418,6 +422,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 							//mConversationArrayAdapter.clear();
 							showToastLong(getResources().getString(R.string.connected));
 							bt_connected = true;
+							textView1.setText(devicename);
 							break;
 						case BluetoothChatService.STATE_CONNECTING:
 							//setStatus(R.string.title_connecting);
@@ -433,6 +438,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					// construct a string from the buffer
 					String writeMessage = new String(writeBuf);
 					//mConversationArrayAdapter.add("Me:  " + writeMessage);
+					break;
+				case Constants.MESSAGE_WRITE_FALSE:
+					showToastLong(getText(R.string.message_write_false).toString());
 					break;
 				case Constants.MESSAGE_READ:
 					byte[] readBuf = (byte[]) msg.obj;
@@ -453,12 +461,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					*/
 					break;
 				case Constants.MESSAGE_TOAST:
-					/*
-					if (null != activity) {
-						Toast.makeText(activity, msg.getData().getString(Constants.TOAST),
-								Toast.LENGTH_SHORT).show();
-					}
-					*/
+					String string = msg.getData().getString(Constants.TOAST);
+					showToastLong(string);
+
 					break;
 			}
 		}
@@ -526,7 +531,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		v_holder = holder; // SurfaceHolderを保存
-		textView1.setText("CAM\nHeight:" + height + "\nWidth:" + width);
+		//textView1.setText("CAM\nHeight:" + height + "\nWidth:" + width);
 		Camera.Parameters parameters = cam.getParameters();
 		cam.setParameters(parameters);
 		cam.startPreview();
@@ -735,7 +740,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			}
 		}
 		*/
-
 	}
 
 	//タイマー処理
@@ -915,6 +919,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+
 
 }
 

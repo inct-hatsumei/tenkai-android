@@ -17,6 +17,7 @@
     <string name="connecting_please_wait">接続中です \nしばらくお待ちください</string>
     <string name="device_select">デバイス選択</string>
     <string name="disconnect">接続を切る</string>
+    <string name="message_write_false">送信できませんでした</string>
     <string name="no_paired_nxt">ペアリングされたデバイスがありません</string>
     <string name="none_paired">接続履歴のある機器はありません</string>
     <string name="pairing_message">ペアリングしてから，接続してください</string>

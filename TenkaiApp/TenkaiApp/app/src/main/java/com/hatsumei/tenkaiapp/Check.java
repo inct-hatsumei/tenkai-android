@@ -38,29 +38,31 @@ public class Check extends Activity {
 		textView8 = (TextView)findViewById(R.id.temp_got);
 		intent = getIntent();
 
+		int color = Color.CYAN;
+
 		if(intent.getBooleanExtra("bt_on", false)) {
-			textView1.setBackgroundColor(Color.RED);
+			textView1.setBackgroundColor(color);
 		}
 		if(intent.getBooleanExtra("bt_connect", false)) {
-			textView2.setBackgroundColor(Color.RED);
+			textView2.setBackgroundColor(color);
 		}
 		if(intent.getBooleanExtra("gps_got", false)) {
-			textView3.setBackgroundColor(Color.RED);
+			textView3.setBackgroundColor(color);
 		}
 		if(intent.getBooleanExtra("sensor_got", false)) {
-			textView4.setBackgroundColor(Color.RED);
+			textView4.setBackgroundColor(color);
 		}
 		if(intent.getBooleanExtra("cpu_got", false)) {
-			textView5.setBackgroundColor(Color.RED);
+			textView5.setBackgroundColor(color);
 		}
 		if(intent.getBooleanExtra("memory_got", false)) {
-			textView6.setBackgroundColor(Color.RED);
+			textView6.setBackgroundColor(color);
 		}
 		if(intent.getBooleanExtra("battery_got", false)) {
-			textView7.setBackgroundColor(Color.RED);
+			textView7.setBackgroundColor(color);
 		}
 		if(intent.getBooleanExtra("temp_got", false)) {
-			textView8.setBackgroundColor(Color.RED);
+			textView8.setBackgroundColor(color);
 		}
 
 	}

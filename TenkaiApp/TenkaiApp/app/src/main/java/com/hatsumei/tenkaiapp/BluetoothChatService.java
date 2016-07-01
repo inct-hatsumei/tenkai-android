@@ -411,11 +411,13 @@ public class BluetoothChatService {
 					// Read from the InputStream
 					bytes = mmInStream.read(buffer);
 
+
 					// Send the obtained bytes to the UI Activity
 					mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
 							.sendToTarget();
 				} catch (IOException e) {
 					Log.e(TAG, "disconnected", e);
+					mHandler.obtainMessage(Constants.MESSAGE_WRITE_FALSE).sendToTarget();
 					connectionLost();
 					// Start the service over to restart listening mode
 					BluetoothChatService.this.start();
@@ -436,8 +438,10 @@ public class BluetoothChatService {
 				// Share the sent message back to the UI Activity
 				mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
 						.sendToTarget();
+				Log.v("BT-write", "success");
 			} catch (IOException e) {
 				Log.e(TAG, "Exception during write", e);
+				mHandler.obtainMessage(Constants.MESSAGE_WRITE_FALSE).sendToTarget();
 			}
 		}
 

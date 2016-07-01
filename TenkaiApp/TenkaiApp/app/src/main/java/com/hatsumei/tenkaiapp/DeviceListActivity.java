@@ -21,6 +21,7 @@ import java.util.Set;
 public class DeviceListActivity extends Activity {
 	static final String PAIRING = "pairing";
 	public static String EXTRA_DEVICE_ADDRESS = "device_address";
+	public static String EXTRA_DEVICE_NAME = "device_name";
 
 	private BluetoothAdapter mBtAdapter;
 	private ArrayAdapter<String> mPairedDevicesArrayAdapter;
@@ -84,10 +85,12 @@ public class DeviceListActivity extends Activity {
 
 			// Get the device MAC address, which is the last 17 chars in the View
 			String info = ((TextView) v).getText().toString();
+			String devicenemae  =info.substring(0, info.length() - 17);
 			String address = info.substring(info.length() - 17);
 			// Create the result Intent and include the MAC address
 			Intent intent = new Intent();
 			Bundle data = new Bundle();
+			data.putString(EXTRA_DEVICE_NAME, devicenemae);
 			data.putString(EXTRA_DEVICE_ADDRESS, address);
 			//data.putBoolean(PAIRING,av.getId()==R.id.new_devices);
 			intent.putExtras(data);
