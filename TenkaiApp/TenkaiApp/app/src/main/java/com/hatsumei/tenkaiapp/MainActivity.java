@@ -283,7 +283,13 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		Toast.makeText(this, "GPSを有効にしてください", Toast.LENGTH_LONG).show();
 		screenlock(0);
 
-		autoConnect();
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				autoConnect();
+			}
+		}, 2000);
+
 	}
 
 	@Override
@@ -299,9 +305,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		if (mChatService != null) {
 			mChatService.stop();
 		}
-		mAlarm.readMessage("Destroy");
+		//mAlarm.readMessage("Destroy");
 
-		screenlock(1);
+		//screenlock(1);
 	}
 
 
@@ -346,6 +352,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 	void selectDevice() {
+
 		mChatService = new BluetoothChatService(mHandler);
 		Intent intent = new Intent(this, DeviceListActivity.class);
 		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
@@ -919,7 +926,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 
 
 }
