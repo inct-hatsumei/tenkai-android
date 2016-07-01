@@ -123,7 +123,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	private BluetoothChatService mChatService = null;
 
-	private StringBuffer mOutStringBuffer;
+	//private StringBuffer mOutStringBuffer;
 	private EditText mOutEditText;
 	private ToggleButton toggleButton;
 
