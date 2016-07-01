@@ -373,7 +373,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp) + "/" + +calendar.get(Calendar.DATE) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":"
 					+ calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + ":" + calendar.get(Calendar.MILLISECOND) + ","
 					+ cpu + "," + memo + "," + temp + "," + batt + ","
-					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ + "\n";
+					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
 			//scount = " " + String.valueOf(icount) + ", " + String.valueOf(lat) + ", " + String.valueOf(alt) + ", "+ String.valueOf(hei);
 			sendByte = sendMsg.getBytes();
 			//bcount = scount.getBytes();
