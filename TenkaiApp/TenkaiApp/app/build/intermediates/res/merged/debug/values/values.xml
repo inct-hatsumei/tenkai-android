@@ -20,6 +20,7 @@
     <string name="message_write_false">送信できませんでした</string>
     <string name="no_paired_nxt">ペアリングされたデバイスがありません</string>
     <string name="none_paired">接続履歴のある機器はありません</string>
+    <string name="not_connected">接続されていません</string>
     <string name="pairing_message">ペアリングしてから，接続してください</string>
     <string name="problem_at_closing">接続を閉じるときに問題が発生しました</string>
     <string name="restart">再起動</string>

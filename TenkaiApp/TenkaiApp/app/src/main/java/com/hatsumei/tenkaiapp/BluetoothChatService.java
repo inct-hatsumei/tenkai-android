@@ -23,7 +23,6 @@ public class BluetoothChatService {
 	private final BluetoothAdapter mAdapter;
 	private final Handler mHandler;
 	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-	private String NAME = "BluetoothChatService";
 	private String TAG = "AcceptThread";
 
 	private ConnectThread mConnectThread;
@@ -31,10 +30,10 @@ public class BluetoothChatService {
 	private AcceptThread mSecureAcceptThread;
 	private AcceptThread mInsecureAcceptThread;
 
+	public static final int STATE_NONE = 0;
 	public static final int STATE_LISTEN = 1;
 	public static final int STATE_CONNECTING = 2;
-	public static final int STATE_CONNECTED = 4;
-	public static final int STATE_NONE = 3;
+	public static final int STATE_CONNECTED = 3;
 
 	// Name for the SDP record when creating server socket
 	private static final String NAME_SECURE = "BluetoothChatSecure";

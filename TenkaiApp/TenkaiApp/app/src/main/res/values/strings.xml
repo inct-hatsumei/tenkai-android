@@ -12,6 +12,7 @@
     <string name="connected">接続しました</string>
     <string name="bt_error_dialog_title">Bluetoothエラー</string>
     <string name="bt_error_dialog_message">デバイスに接続できません</string>
+    <string name="not_connected">接続されていません</string>
 
     <string name="message_write_false">送信できませんでした</string>
 

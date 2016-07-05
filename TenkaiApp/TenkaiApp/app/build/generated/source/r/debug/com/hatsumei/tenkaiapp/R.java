@@ -89,11 +89,12 @@ public final class R {
         public static final int message_write_false=0x7f07000b;
         public static final int no_paired_nxt=0x7f07000c;
         public static final int none_paired=0x7f07000d;
-        public static final int pairing_message=0x7f07000e;
-        public static final int problem_at_closing=0x7f07000f;
-        public static final int restart=0x7f070010;
-        public static final int title_paired_devices=0x7f070011;
-        public static final int wait_till_bt_on=0x7f070012;
+        public static final int not_connected=0x7f07000e;
+        public static final int pairing_message=0x7f07000f;
+        public static final int problem_at_closing=0x7f070010;
+        public static final int restart=0x7f070011;
+        public static final int title_paired_devices=0x7f070012;
+        public static final int wait_till_bt_on=0x7f070013;
     }
     public static final class style {
         public static final int AppTheme=0x7f080000;

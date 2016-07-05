@@ -3,9 +3,7 @@ package com.hatsumei.tenkaiapp;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
-import android.app.DialogFragment;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,16 +20,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.SystemClock;
-import android.provider.Settings;
 import android.util.Log;
-import android.util.LongSparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,14 +36,12 @@ import java.util.Calendar;
 import java.util.List;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -65,7 +56,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private SensorManager Smanager;
 	private Camera cam;
 	private SurfaceView mySurfaceView;
-	private TextView textView;
 	private TextView textView1;
 	private TextView textView3;
 	private TextView textView4;
@@ -73,12 +63,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private TextView textView6;
 	private TextView textView7;
 	private TextView textView8;
+	private ToggleButton toggleButton;
 	private ToggleButton toggleButton1;
 	private ToggleButton toggleButton2;
 
 	private MediaPlayer mediaPlayer = null;
 	private Alarm mAlarm;
-
 
 	private Toast mLongToast;
 	private Toast mShortToast;
@@ -100,6 +90,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	String gabX = "";
 	String gabY = "";
 	String gabZ = "";
+
 	MyTimerTask timerTask = null;
 	Timer mTimer = null;
 
@@ -119,13 +110,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private static final int REQUEST_ENABLE_BT = 1;
 	private static final int REQUEST_CONNECT_DEVICE = 2;
 
-	private static final String ADDRESS = "7C:B7:33:06:1E:D0";
-
 	private BluetoothChatService mChatService = null;
-
-	//private StringBuffer mOutStringBuffer;
-	private EditText mOutEditText;
-	private ToggleButton toggleButton;
 
 	boolean bt_on = false;
 	boolean bt_connected = false;
@@ -137,12 +122,11 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	boolean temp_got = false;
 
 
-	private String log = "";
+	private String log;
 
 	String address;
 	String devicename = "USER";
 
-	int ringMaxVolume;
 	int flags;
 
 
@@ -151,16 +135,13 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Log.v("file", Environment.getExternalStorageDirectory().getPath());
-
 		Lmanager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
 		Smanager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
 		textView1 = (TextView) findViewById(R.id.textView1);
 		textView3 = (TextView) findViewById(R.id.textView3);
 		textView4 = (TextView) findViewById(R.id.textView4);
 		textView5 = (TextView) findViewById(R.id.textView5);
-		textView = (TextView) findViewById(R.id.textView);
 		textView6 = (TextView) findViewById(R.id.textView6);
 		textView7 = (TextView) findViewById(R.id.textView7);
 		textView8 = (TextView) findViewById(R.id.textView8);
@@ -168,9 +149,11 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		toggleButton1 = (ToggleButton) findViewById(R.id.toggleButton1);
 		toggleButton2 = (ToggleButton) findViewById(R.id.toggleButton2);
 		mySurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+
 		SurfaceHolder holder = mySurfaceView.getHolder();
 		holder.addCallback(this);
 		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
 		myRecorder = new MediaRecorder();
 
 		mLongToast = Toast.makeText(this, "", Toast.LENGTH_LONG);
@@ -181,7 +164,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		toggleButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
 				if (toggleButton.isChecked()) {
 					running = true;
 					if (running) {
@@ -189,8 +171,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 						mTimer = new Timer(true);
 						mTimer.scheduleAtFixedRate(timerTask, 0, 500);
 					}
-
-
 				} else if (toggleButton.isChecked() == false) {
 					running = false;
 					mTimer.cancel();
@@ -199,28 +179,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				}
 			}
 		});
-/*
 
-		toggleButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (toggleButton.isChecked()) {
-					if (mTimer == null) {
-
-						timerTask = new MyTimerTask();
-						mLaptime = 0.0f;
-						mTimer = new Timer(true);
-						mTimer.schedule(timerTask, 500, 500);
-					}
-				} else if (toggleButton.isChecked() == false) {
-					if (mTimer != null) {
-						mTimer.cancel();
-						mTimer = null;
-					}
-				}
-			}
-		});
-		*/
 		toggleButton1.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -256,23 +215,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		});
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-		if (mBluetoothAdapter == null) {
-			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-			finish();
-			return;
-		}
-
 		if (!mBluetoothAdapter.isEnabled()) {
 			showToastShort(getResources().getString(R.string.wait_till_bt_on));
-			//Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			//startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
 			mBluetoothAdapter.enable();
 			bt_on = true;
-// Otherwise, setup the chat session
 		} else {
 			bt_on = true;
-			//if (mChatService == null)
-			//selectDevice();
 		}
 
 
@@ -281,6 +229,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		mTimer2.scheduleAtFixedRate(timerTask2, 0, 1000);
 
 		Toast.makeText(this, "GPSを有効にしてください", Toast.LENGTH_LONG).show();
+
 		screenlock(0);
 
 		new Handler().postDelayed(new Runnable() {
@@ -293,21 +242,11 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
-
-
-	}
-
-	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		if (mChatService != null) {
 			mChatService.stop();
 		}
-		//mAlarm.readMessage("Destroy");
-
-		//screenlock(1);
 	}
 
 
@@ -335,108 +274,28 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 					boolean secure = true;
 					mChatService.connect(device, secure);
-					//startBTCommunicator(address);
-				} else {
-					//showToastLong("右上のメニューから次の動作を選択してください");
-
 				}
 				break;
 
 		}
 	}
 
-	void autoConnect() {
-		mChatService = new BluetoothChatService(mHandler);
-		Intent intent = new Intent(this, SplashActivity.class);
-		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
-	}
-
-	void selectDevice() {
-
-		mChatService = new BluetoothChatService(mHandler);
-		Intent intent = new Intent(this, DeviceListActivity.class);
-		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
-		//address = ADDRESS;
-		//BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-		boolean secure = true;
-		//mChatService.connect(device, secure);
-	}
-
-	private void sendMessage() {
-
-		String sendMsg = "";
-		byte[] sendByte;
-
-		calendar = Calendar.getInstance();
-		try {
-			int tmp = calendar.get(Calendar.MONTH) + 1;//calendar.get(Calendar.MONTH)で取得出来るのは今の月-1なので、一度intにして+1してStringに変換する
-			sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp) + "/" + +calendar.get(Calendar.DATE) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":"
-					+ calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + ":" + calendar.get(Calendar.MILLISECOND) + ","
-					+ cpu + "," + memo + "," + temp + "," + batt + ","
-					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
-			//scount = " " + String.valueOf(icount) + ", " + String.valueOf(lat) + ", " + String.valueOf(alt) + ", "+ String.valueOf(hei);
-			sendByte = sendMsg.getBytes();
-			//bcount = scount.getBytes();
-			//textview.setText(String.valueOf(scount) + "\n" + textview.getText());
-			//mOutput.write(sendByte);
-			log += sendMsg;
-			mChatService.write(sendByte);
-		} //catch (IOException e) {
-		catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// Check that we're actually connected before trying anything
-		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
-			//Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show();
-			return;
-		}
-
-
-		// Check that there's actually something to send
-		/*
-		if (message.length() > 0) {
-			// Get the message bytes and tell the BluetoothChatService to write
-			byte[] send = message.getBytes();
-			//mChatService.write(send);
-
-
-
-			// Reset out string buffer to zero and clear the edit text field
-			//mOutStringBuffer.setLength(0);
-			//mOutEditText.setText(mOutStringBuffer);
-		}
-		*/
-	}
-
-	private void setStatus(int resId) {
-	}
-
-	private void setStatus(CharSequence subTitle) {
-
-	}
-
 	private final Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			//FragmentActivity activity = getActivity();
 			switch (msg.what) {
 				case Constants.MESSAGE_STATE_CHANGE:
 					switch (msg.arg1) {
 						case BluetoothChatService.STATE_CONNECTED:
 							//setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
-							//mConversationArrayAdapter.clear();
 							showToastLong(getResources().getString(R.string.connected));
 							bt_connected = true;
 							textView1.setText(devicename);
 							break;
 						case BluetoothChatService.STATE_CONNECTING:
-							//setStatus(R.string.title_connecting);
 							break;
 						case BluetoothChatService.STATE_LISTEN:
 						case BluetoothChatService.STATE_NONE:
-							//setStatus(R.string.title_not_connected);
 							break;
 					}
 					break;
@@ -458,23 +317,63 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					//mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage);
 					break;
 				case Constants.MESSAGE_DEVICE_NAME:
-					// save the connected device's name
-					//mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
-					/*
-					if (null != activity) {
-						Toast.makeText(activity, "Connected to "
-								+ mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-					}
-					*/
 					break;
 				case Constants.MESSAGE_TOAST:
 					String string = msg.getData().getString(Constants.TOAST);
 					showToastLong(string);
-
+					bt_connected = false;
 					break;
 			}
 		}
 	};
+
+	void autoConnect() {
+		mChatService = new BluetoothChatService(mHandler);
+		Intent intent = new Intent(this, SplashActivity.class);
+		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
+	}
+
+	void selectDevice() {
+
+		mChatService = new BluetoothChatService(mHandler);
+		Intent intent = new Intent(this, DeviceListActivity.class);
+		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
+	}
+
+	private void sendMessage() {
+
+		String sendMsg = "";
+		byte[] sendByte;
+
+		calendar = Calendar.getInstance();
+		try {
+			int tmp = calendar.get(Calendar.MONTH) + 1;//calendar.get(Calendar.MONTH)で取得出来るのは今の月-1なので、一度intにして+1してStringに変換する
+			sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp) + "/" + +calendar.get(Calendar.DATE) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":"
+					+ calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + ":" + calendar.get(Calendar.MILLISECOND) + ","
+					+ cpu + "," + memo + "," + temp + "," + batt + ","
+					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
+			sendByte = sendMsg.getBytes();
+			log += sendMsg;
+			mChatService.write(sendByte);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Check that we're actually connected before trying anything
+		/*
+		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
+			showToastLong(getString(R.string.not_connected));
+			return;
+		}
+		*/
+	}
+
+	private void setStatus(int resId) {
+	}
+
+	private void setStatus(CharSequence subTitle) {
+
+	}
 
 	private void readCommand(String message) {
 		if (message.equals("senddata") || message.equals("1")) {
@@ -490,6 +389,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			running = false;
 			mTimer.cancel();
 			mTimer = null;
+			fileout(log.getBytes());
 		} else if (message.equals("videorecstart") || message.equals("4")) {
 			if (!isRecording) {
 				cam.release();
@@ -698,9 +598,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			usage = (usr + nice + sys - old_use) / (now - old_time);
 			old_use = usr + nice + sys;
 			old_time = now;
-
-
-			//textView1.setText(String.valueOf(usage));
 		} catch (Exception e) {
 			Toast.makeText(getApplicationContext(), "読み込みエラー", Toast.LENGTH_SHORT).show();
 		}
@@ -733,20 +630,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		/*
-		if(running == true) {
-			String mtemp = String.valueOf(temp);
-			Btsend mBtsend = new Btsend(cpu, memo, mtemp, batt, lat, alt, hei, gabX, gabY, gabZ, mOutput);
-			//mBtsend.start();
-			try {
-				mOutput.write('a');
-
-			}catch (IOException e){
-
-			}
-		}
-		*/
 	}
 
 	//タイマー処理
