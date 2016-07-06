@@ -34,6 +34,7 @@ public class BluetoothChatService {
 	public static final int STATE_LISTEN = 1;
 	public static final int STATE_CONNECTING = 2;
 	public static final int STATE_CONNECTED = 3;
+	public static boolean WRITE_RESULT = false;
 
 	// Name for the SDP record when creating server socket
 	private static final String NAME_SECURE = "BluetoothChatSecure";
@@ -203,7 +204,7 @@ public class BluetoothChatService {
 		mHandler.sendMessage(msg);
 
 		// Start the service over to restart listening mode
-		BluetoothChatService.this.start();
+		//BluetoothChatService.this.start();
 	}
 
 	/**
@@ -438,9 +439,11 @@ public class BluetoothChatService {
 				mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
 						.sendToTarget();
 				Log.v("BT-write", "success");
+				WRITE_RESULT = true;
 			} catch (IOException e) {
 				Log.e(TAG, "Exception during write", e);
 				mHandler.obtainMessage(Constants.MESSAGE_WRITE_FALSE).sendToTarget();
+				WRITE_RESULT = false;
 			}
 		}
 

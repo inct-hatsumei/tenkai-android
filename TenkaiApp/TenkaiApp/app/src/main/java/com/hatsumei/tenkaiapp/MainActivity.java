@@ -244,6 +244,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		unregisterReceiver(myReceiver);
 		if (mChatService != null) {
 			mChatService.stop();
 		}
@@ -322,6 +323,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					String string = msg.getData().getString(Constants.TOAST);
 					showToastLong(string);
 					bt_connected = false;
+					new Handler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							autoConnect();
+						}
+					}, 2000);
 					break;
 			}
 		}
@@ -343,6 +350,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	private void sendMessage() {
 
 		String sendMsg = "";
+		String saveStr = "";
 		byte[] sendByte;
 
 		calendar = Calendar.getInstance();
@@ -352,11 +360,17 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					+ calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + ":" + calendar.get(Calendar.MILLISECOND) + ","
 					+ cpu + "," + memo + "," + temp + "," + batt + ","
 					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
-			sendByte = sendMsg.getBytes();
+			saveStr += sendMsg;
+			sendByte = saveStr.getBytes();
+
 			log += sendMsg;
 			mChatService.write(sendByte);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+		if(BluetoothChatService.WRITE_RESULT){
+			saveStr = "";
 		}
 
 		// Check that we're actually connected before trying anything
@@ -464,6 +478,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		}
 		super.onPause();
 	}
+
 
 	//---sensor----
 
@@ -649,7 +664,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		public void run() {
 			mHandler2.post(new Runnable() {
 				public void run() {
-					setPerform();
+						setPerform();
 				}
 			});
 		}
