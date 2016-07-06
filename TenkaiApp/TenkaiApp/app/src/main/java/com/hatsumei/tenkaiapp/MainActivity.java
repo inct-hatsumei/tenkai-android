@@ -123,6 +123,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 
 	private String log;
+	String sendMsg = "";
+	byte[] sendByte;
 
 	String address;
 	String devicename = "USER";
@@ -248,6 +250,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		if (mChatService != null) {
 			mChatService.stop();
 		}
+		fileout(log.getBytes());
 	}
 
 
@@ -348,29 +351,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 	private void sendMessage() {
-
-		String sendMsg = "";
-		String saveStr = "";
-		byte[] sendByte;
-
-		calendar = Calendar.getInstance();
 		try {
-			int tmp = calendar.get(Calendar.MONTH) + 1;//calendar.get(Calendar.MONTH)で取得出来るのは今の月-1なので、一度intにして+1してStringに変換する
-			sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp) + "/" + +calendar.get(Calendar.DATE) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":"
-					+ calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + ":" + calendar.get(Calendar.MILLISECOND) + ","
-					+ cpu + "," + memo + "," + temp + "," + batt + ","
-					+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
-			saveStr += sendMsg;
-			sendByte = saveStr.getBytes();
-
-			log += sendMsg;
 			mChatService.write(sendByte);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
-		if(BluetoothChatService.WRITE_RESULT){
-			saveStr = "";
 		}
 
 		// Check that we're actually connected before trying anything
@@ -573,18 +557,25 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	}
 
 
-	//送信
-	private void Transmission() {
-
-
-	}
-
 	private static long old_time;
 	private static double old_use;
 	int i = 0;
 	double usage;
 
 	public void setPerform() {
+		calendar = Calendar.getInstance();
+		int tmp = calendar.get(Calendar.MONTH) + 1;//calendar.get(Calendar.MONTH)で取得出来るのは今の月-1なので、一度intにして+1してStringに変換する
+		sendMsg = calendar.get(Calendar.YEAR) + "/" + String.valueOf(tmp) + "/" + +calendar.get(Calendar.DATE) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":"
+				+ calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND) + ":" + calendar.get(Calendar.MILLISECOND) + ","
+				+ cpu + "," + memo + "," + temp + "," + batt + ","
+				+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
+		sendByte = sendMsg.getBytes();
+
+		log += sendMsg;
+
+
+
+
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Intent.ACTION_BATTERY_CHANGED);
 		registerReceiver(myReceiver, filter);
