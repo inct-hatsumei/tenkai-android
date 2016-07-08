@@ -64,6 +64,7 @@ public class BluetoothChatService {
 	}
 
 	public synchronized void start() {
+		Log.v("BTchat", "start()");
 		// Cancel any thread attempting to make a connection
 		if (mConnectThread != null) {
 			mConnectThread.cancel();
@@ -196,6 +197,7 @@ public class BluetoothChatService {
 	}
 
 	private void connectionFailed() {
+
 		// Send a failure message back to the Activity
 		Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
 		Bundle bundle = new Bundle();
@@ -205,7 +207,7 @@ public class BluetoothChatService {
 
 		// Start the service over to restart listening mode
 		//
-		// BluetoothChatService.this.start();
+		BluetoothChatService.this.start();
 	}
 
 	/**

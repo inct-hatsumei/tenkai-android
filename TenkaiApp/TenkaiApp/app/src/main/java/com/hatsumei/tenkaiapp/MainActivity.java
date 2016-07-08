@@ -18,6 +18,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
@@ -126,10 +127,13 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	String sendMsg = "";
 	byte[] sendByte;
 
-	String address;
+	String address = "A0:A8:CD:C3:9A:00";
+	//String address = "7C:B7:33:06:1E:D0";
 	String devicename = "USER";
 
 	int flags;
+
+	boolean bt_flags = true;
 
 
 	@Override
@@ -233,13 +237,14 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		Toast.makeText(this, "GPSを有効にしてください", Toast.LENGTH_LONG).show();
 
 		screenlock(0);
-
+		mChatService = new BluetoothChatService(mHandler);
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				autoConnect();
 			}
 		}, 2000);
+
 
 	}
 
@@ -324,28 +329,34 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					break;
 				case Constants.MESSAGE_TOAST:
 					String string = msg.getData().getString(Constants.TOAST);
-					showToastLong(string);
+					showToastShort(string);
 					bt_connected = false;
+					/*Looper.getMainLooper()*/
 					new Handler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
 							autoConnect();
 						}
-					}, 2000);
+					}, 500);
+
 					break;
 			}
 		}
 	};
 
 	void autoConnect() {
-		mChatService = new BluetoothChatService(mHandler);
-		Intent intent = new Intent(this, SplashActivity.class);
-		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
+		//mChatService = new BluetoothChatService(mHandler);
+		//mChatService.start();
+		if(bt_flags) {
+			BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+			boolean secure = true;
+			mChatService.connect(device, secure);
+		}
 	}
 
 	void selectDevice() {
-
-		mChatService = new BluetoothChatService(mHandler);
+		bt_flags = false;
+		//mChatService = new BluetoothChatService(mHandler);
 		Intent intent = new Intent(this, DeviceListActivity.class);
 		startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
 	}
@@ -574,8 +585,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		log += sendMsg;
 
 
-
-
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Intent.ACTION_BATTERY_CHANGED);
 		registerReceiver(myReceiver, filter);
@@ -655,7 +664,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		public void run() {
 			mHandler2.post(new Runnable() {
 				public void run() {
-						setPerform();
+					setPerform();
 				}
 			});
 		}
