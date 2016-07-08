@@ -282,6 +282,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 					address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 					BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 					boolean secure = true;
+					bt_flags = true;
 					mChatService.connect(device, secure);
 				}
 				break;
