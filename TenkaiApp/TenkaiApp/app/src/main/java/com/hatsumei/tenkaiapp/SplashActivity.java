@@ -11,7 +11,8 @@ public class SplashActivity extends Activity {
 
 	Intent intent = new Intent();
 
-	String ADDRESS = "7C:B7:33:06:1E:D0";
+	//String ADDRESS = "7C:B7:33:06:1E:D0";
+	String ADDRESS = "A0:A8:CD:C3:9A:00";
 	public static String EXTRA_DEVICE_ADDRESS = "device_address";
 
 	@Override
