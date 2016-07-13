@@ -129,7 +129,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	String address = "A0:A8:CD:C3:9A:00";
 	//String address = "7C:B7:33:06:1E:D0";
-	String devicename = "USER";
+	String devicename = "NotePC";
 
 	int flags;
 

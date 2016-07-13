@@ -31,14 +31,18 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion '24.0.0'
 
     signingConfigs {
         config {
-            keyAlias 'cookbook1'
+            /*keyAlias 'cookbook1'
             keyPassword 'wh6pu8881'
             storeFile file('C:/Users/Owner/AndroidStudioProjects/cook.jks')
-            storePassword 'wh6pu8'
+            storePassword 'wh6pu8'*/
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('C:/Users/kadoshita/Dev/tenkai-android/TenkaiApp/TenkaiApp/debug.keystore')
+            storePassword 'android'
         }
     }
 
@@ -66,6 +70,6 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     //testCompile 'junit:junit:4.12'
 }
