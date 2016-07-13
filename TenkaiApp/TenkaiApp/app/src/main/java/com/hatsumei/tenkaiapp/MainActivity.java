@@ -583,6 +583,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
 		sendByte = sendMsg.getBytes();
 
+		sendMsg += "\n";
 		log += sendMsg;
 
 
