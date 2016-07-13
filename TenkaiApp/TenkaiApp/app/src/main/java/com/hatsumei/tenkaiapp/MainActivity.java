@@ -484,6 +484,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			Lmanager.removeUpdates(this);
 		}
 		super.onPause();
+		fileout(log.getBytes());
 	}
 
 
@@ -594,7 +595,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				+ lat + "," + alt + "," + hei + "," + gabX + "," + gabY + "," + gabZ;
 		sendByte = sendMsg.getBytes();
 
-		sendMsg += "\n";
+
+		sendMsg = "\n" + sendMsg;
 		log += sendMsg;
 
 
