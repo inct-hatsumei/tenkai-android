@@ -85,9 +85,9 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	String memo = "";
 	String tmpr = "";
 	String batt = "";
-	String lat = "0";
-	String alt = "0";
-	String hei = "0";
+	String lat = "";
+	String alt = "";
+	String hei = "";
 	String gabX = "";
 	String gabY = "";
 	String gabZ = "";
@@ -129,7 +129,12 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	String address = "A0:A8:CD:C3:9A:00";
 	//String address = "7C:B7:33:06:1E:D0";
+<<<<<<< HEAD
 	String devicename = "NotePC";
+=======
+	//String devicename = "USER";
+	String devicename = "NOTE-PC";
+>>>>>>> 0e540054883450a740c29e00fdd2d43e9ced73d8
 
 	int flags;
 
@@ -223,10 +228,18 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 		if (!mBluetoothAdapter.isEnabled()) {
 			showToastShort(getResources().getString(R.string.wait_till_bt_on));
-			mBluetoothAdapter.enable();
-			bt_on = true;
+			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+			//mBluetoothAdapter.enable();
 		} else {
 			bt_on = true;
+			mChatService = new BluetoothChatService(mHandler);
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					autoConnect();
+				}
+			}, 2000);
 		}
 
 
@@ -237,13 +250,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		Toast.makeText(this, "GPSを有効にしてください", Toast.LENGTH_LONG).show();
 
 		screenlock(0);
-		mChatService = new BluetoothChatService(mHandler);
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				autoConnect();
-			}
-		}, 2000);
+
 
 
 	}
@@ -265,6 +272,14 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 				// When the request to enable Bluetooth returns
 				if (resultCode == Activity.RESULT_OK) {
 					// Bluetooth is now enabled, so set up a chat session
+					bt_on = true;
+					mChatService = new BluetoothChatService(mHandler);
+					new Handler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							autoConnect();
+						}
+					}, 2000);
 					//selectDevice();
 				} else {
 					// User did not enable Bluetooth or an error occured
