@@ -129,12 +129,8 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	String address = "A0:A8:CD:C3:9A:00";
 	//String address = "7C:B7:33:06:1E:D0";
-<<<<<<< HEAD
 	String devicename = "NotePC";
-=======
 	//String devicename = "USER";
-	String devicename = "NOTE-PC";
->>>>>>> 0e540054883450a740c29e00fdd2d43e9ced73d8
 
 	int flags;
 
@@ -488,6 +484,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			Lmanager.removeUpdates(this);
 		}
 		super.onPause();
+		fileout(log.getBytes());
 	}
 
 
