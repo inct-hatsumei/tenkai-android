@@ -1,4 +1,3 @@
-
 /*apply plugin: 'com.android.application'
 
 android {
@@ -35,14 +34,17 @@ android {
 
     signingConfigs {
         config {
-            /*keyAlias 'cookbook1'
+            /*
+            keyAlias 'cookbook1'
             keyPassword 'wh6pu8881'
             storeFile file('C:/Users/Owner/AndroidStudioProjects/cook.jks')
-            storePassword 'wh6pu8'*/
+            storePassword 'wh6pu8'
+            */
             keyAlias 'androiddebugkey'
             keyPassword 'android'
             storeFile file('C:/Users/kadoshita/Dev/tenkai-android/TenkaiApp/TenkaiApp/debug.keystore')
             storePassword 'android'
+
         }
     }
 

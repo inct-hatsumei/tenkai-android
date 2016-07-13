@@ -248,7 +248,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		screenlock(0);
 
 
-
 	}
 
 	@Override
@@ -359,7 +358,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 	void autoConnect() {
 		//mChatService = new BluetoothChatService(mHandler);
 		//mChatService.start();
-		if(bt_flags) {
+		if (bt_flags) {
 			BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 			boolean secure = true;
 			mChatService.connect(device, secure);
@@ -484,7 +483,10 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			Lmanager.removeUpdates(this);
 		}
 		super.onPause();
-		fileout(log.getBytes());
+		try {
+			fileout(log.getBytes());
+		} catch (Exception e ) {
+		}
 	}
 
 
@@ -761,6 +763,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			fileOutputStream = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + filename, true);
 			fileOutputStream.write(bytes);
 			Log.v("output", "GO");
+			showToastShort("Log saved");
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}
