@@ -585,7 +585,7 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 
 	private static long old_time;
 	private static double old_use;
-	int i = 0;
+	int b = 0;
 	double usage;
 
 	public void setPerform() {
@@ -598,8 +598,15 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		sendByte = sendMsg.getBytes();
 
 
-		sendMsg = "\n" + sendMsg;
-		log += sendMsg;
+
+
+		if(b == 0) {
+			log = sendMsg;
+			b = 1;
+		}else {
+			sendMsg = "\n" + sendMsg;
+			log += sendMsg;
+		}
 
 
 		IntentFilter filter = new IntentFilter();
@@ -610,10 +617,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 		TextView textView12 = (TextView) findViewById(R.id.textView12);
 		textView12.setText("");
 
-
-		i++;
-		String str = "";
-		str += String.valueOf(i) + "\n";
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader("/proc/stat"));
 			String line = reader.readLine().trim();
@@ -622,9 +625,6 @@ public class MainActivity extends Activity implements SensorEventListener, Surfa
 			int nice = Integer.parseInt(vals[2]);
 			int sys = Integer.parseInt(vals[3]);
 
-			while ((line = reader.readLine()) != null) {
-				str += line + "\n";
-			}
 			reader.close();
 			long now = System.currentTimeMillis() / 10;
 			usage = (usr + nice + sys - old_use) / (now - old_time);
