@@ -70,6 +70,7 @@ public final class R {
     }
     public static final class mipmap {
         public static final int ic_launcher=0x7f020000;
+        public static final int screenshot_2016_7_15=0x7f020001;
     }
     public static final class raw {
         public static final int hangouts_video_call=0x7f040000;
